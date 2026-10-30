@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
+import path from "node:path";
+import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { connectDB } from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
@@ -46,6 +48,18 @@ app.use("/api/recovery", recoveryRoutes);
 app.get("/api/health", (req, res) => {
   res.json({ status: "OK", message: "CampusFind Backend API is running" });
 });
+
+// Serve frontend in production (Single Service Deployment)
+const frontendDistPath = fileURLToPath(new URL("../../frontend/dist", import.meta.url));
+if (existsSync(frontendDistPath)) {
+  app.use(express.static(frontendDistPath));
+  app.get("*", (req, res, next) => {
+    if (req.path.startsWith("/api") || req.path.startsWith("/uploads")) {
+      return next();
+    }
+    res.sendFile(path.join(frontendDistPath, "index.html"));
+  });
+}
 
 // Connect DB & Start Server
 connectDB().then(() => {
