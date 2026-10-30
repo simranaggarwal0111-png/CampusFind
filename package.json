@@ -1,0 +1,13 @@
+{
+  "name": "campusfind-root",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CampusFind - Campus Lost & Found MERN Application",
+  "scripts": {
+    "install:all": "npm install --prefix frontend && npm install --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev:backend": "npm run dev --prefix backend",
+    "seed:admin": "npm run seed:admin --prefix backend",
+    "build:frontend": "npm run build --prefix frontend"
+  }
+}
