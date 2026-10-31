@@ -107,52 +107,7 @@ export const createItem = async (req, res) => {
     delete itemData.recoveryUrl;
     delete itemData.qrCodeEnabled;
 
-    let recovery;
-    if (
-      itemData.type === "Lost" &&
-      (!itemData.status || itemData.status === "Active") &&
-      req.user
-    ) {
-      const frontendUrl =
-        process.env.FRONTEND_URL ||
-        (process.env.NODE_ENV === "production"
-          ? ""
-          : "http://localhost:5173");
-      let frontendBaseUrl;
-      try {
-        const parsedFrontendUrl = new URL(frontendUrl);
-        if (!["http:", "https:"].includes(parsedFrontendUrl.protocol)) {
-          throw new Error("FRONTEND_URL must use HTTP or HTTPS.");
-        }
-        frontendBaseUrl = parsedFrontendUrl.toString().replace(/\/+$/, "");
-      } catch {
-        return res.status(503).json({
-          message:
-            "Lost-item QR recovery is not configured. Set FRONTEND_URL to your deployed frontend URL.",
-        });
-      }
-
-      const recoveryToken = randomBytes(32).toString("hex");
-      const recoveryUrl = `${frontendBaseUrl}/recover/${recoveryToken}`;
-      const recoveryQrCode = await QRCode.toDataURL(recoveryUrl, {
-        errorCorrectionLevel: "M",
-        margin: 2,
-        width: 480,
-      });
-      itemData.recoveryToken = recoveryToken;
-      itemData.recoveryTokenCreatedAt = new Date();
-      itemData.recoveryQrCode = recoveryQrCode;
-      itemData.recoveryUrl = recoveryUrl;
-      itemData.qrCodeEnabled = true;
-    }
-
     const item = await Item.create(itemData);
-    if (item.qrCodeEnabled) {
-      recovery = {
-        qrCodeDataUrl: item.recoveryQrCode,
-        recoveryUrl: item.recoveryUrl,
-      };
-    }
     const responseItem = item.toObject();
     delete responseItem.recoveryToken;
     delete responseItem.recoveryTokenCreatedAt;
@@ -208,7 +163,6 @@ export const createItem = async (req, res) => {
     res.status(201).json({
       message: `${item.type} item reported successfully`,
       item: responseItem,
-      ...(recovery ? { recovery } : {}),
       matches,
       ...(matchingWarning ? { matchingWarning } : {}),
     });

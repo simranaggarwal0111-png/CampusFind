@@ -3,7 +3,6 @@ import Navbar from "../components/Navbar";
 import { Send, MapPin, Calendar, Tag, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import ItemMatchSuggestions from "../components/ItemMatchSuggestions";
-import RecoveryQrModal from "../components/RecoveryQrModal";
 import { apiUrl, getItemImageUrl } from "../utils/api";
 
 const ReportLost = () => {
@@ -33,7 +32,6 @@ const ReportLost = () => {
   const [error, setError] = useState("");
   const [matches, setMatches] = useState([]);
   const [matchingWarning, setMatchingWarning] = useState("");
-  const [recoveryQr, setRecoveryQr] = useState(null);
 
   const handleImageFileChange = async (e) => {
     const file = e.target.files?.[0];
@@ -91,7 +89,6 @@ const ReportLost = () => {
     setError("");
     setMatches([]);
     setMatchingWarning("");
-    setRecoveryQr(null);
 
     try {
       const token = localStorage.getItem("token");
@@ -122,12 +119,6 @@ const ReportLost = () => {
       setMessage(
         data.message || "Lost item reported successfully! Track it under My Activity.",
       );
-      if (data.recovery) {
-        setRecoveryQr({
-          item: data.item,
-          ...data.recovery,
-        });
-      }
       setMatches(data.matches || []);
       setMatchingWarning(data.matchingWarning || "");
     } catch (err) {
@@ -177,14 +168,6 @@ const ReportLost = () => {
                 View My Items
               </Link>
             </div>
-          )}
-          {recoveryQr && (
-            <RecoveryQrModal
-              item={recoveryQr.item}
-              qrCodeDataUrl={recoveryQr.qrCodeDataUrl}
-              recoveryUrl={recoveryQr.recoveryUrl}
-              onClose={() => setRecoveryQr(null)}
-            />
           )}
 
           {/* Error Message */}
