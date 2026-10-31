@@ -21,3 +21,4 @@ services:
         value: admin123
       - key: ADMIN_EMAIL
         sync: false
+

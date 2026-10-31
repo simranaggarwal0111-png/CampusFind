@@ -1,4 +1,12 @@
 import mongoose from "mongoose";
+import dns from "node:dns";
+
+// Fix for Node.js querySrv ECONNREFUSED with SRV records on Windows / local router DNS
+try {
+  dns.setServers(["8.8.8.8", "8.8.4.4", "1.1.1.1"]);
+} catch {
+  // Ignore if environment prevents setting custom DNS
+}
 
 export const connectDB = async () => {
   try {
